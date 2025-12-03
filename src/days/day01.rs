@@ -19,7 +19,14 @@ impl Day for Day01 {
     }
 
     fn solve_part_two(&self, input: &str) -> String {
-        todo!()
+        let instructions = input.lines().map(|line| self.parse_instruction(line));
+        let mut current_value = 50;
+        let mut counter = 0;
+        for instruction in instructions {
+            self.apply_instruction_part_two(&mut current_value, &mut counter, &instruction);
+        }
+
+        format!("{}", counter)
     }
 }
 
@@ -50,6 +57,39 @@ impl Day01 {
 
         if *current_value == 0 {
             *counter += 1;
+        }
+    }
+
+    fn apply_instruction_part_two(
+        &self,
+        current_value: &mut u8,
+        counter: &mut u16,
+        instruction: &(Op, u16),
+    ) {
+        let (op, value) = instruction;
+
+        let quot = value / 100;
+        let value = (value % 100) as i32;
+
+        *counter += quot;
+
+        let tmp: i32 = match op {
+            Op::Add => *current_value as i32 + value,
+            Op::Sub => *current_value as i32 - value,
+        };
+
+        match tmp {
+            100.. => {
+                *current_value = (tmp % 100) as u8;
+                *counter += 1;
+            }
+            ..1 => {
+                if *current_value != 0 {
+                    *counter += 1;
+                }
+                *current_value = ((tmp + 100) % 100) as u8;
+            }
+            _ => *current_value = (tmp % 100) as u8,
         }
     }
 }
@@ -140,7 +180,7 @@ L82";
         let instructions = EXAMPLE_INPUT
             .lines()
             .map(|line| Day01.parse_instruction(line))
-            .collect::<Vec<(Op, u8)>>();
+            .collect::<Vec<(Op, u16)>>();
         assert_eq!(
             instructions,
             vec![
@@ -159,7 +199,7 @@ L82";
     }
 
     #[test]
-    fn test_example_input_running() {
+    fn test_example_input_running_part1() {
         let instructions = [
             (Op::Sub, 68),
             (Op::Sub, 30),
@@ -182,5 +222,35 @@ L82";
         }
 
         assert_eq!(3, counter);
+    }
+
+    #[test]
+    fn test_example_input_running_part2() {
+        let instructions = [
+            (Op::Sub, 68),
+            (Op::Sub, 30),
+            (Op::Add, 48),
+            (Op::Sub, 5),
+            (Op::Add, 60),
+            (Op::Sub, 55),
+            (Op::Sub, 1),
+            (Op::Sub, 99),
+            (Op::Add, 14),
+            (Op::Sub, 82),
+        ];
+        let mut value = 50;
+        let mut counter = 0;
+        let expected_values = [82, 52, 0, 95, 55, 0, 99, 0, 14, 32];
+
+        for (instruction, expected_value) in zip(instructions, expected_values) {
+            Day01.apply_instruction_part_two(&mut value, &mut counter, &instruction);
+            println!(
+                "Instruction: {:?} - value {} , counter {}",
+                instruction, value, counter
+            );
+            assert_eq!(value, expected_value);
+        }
+
+        assert_eq!(6, counter);
     }
 }
