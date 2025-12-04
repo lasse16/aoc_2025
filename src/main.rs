@@ -16,8 +16,8 @@ fn main() {
     let day_number = u8::from_str(&args[1]).expect("Unparseable day given");
 
     let day = get_day(day_number);
-
-    let input = fs::read_to_string("inputs/01.txt").expect("Couldn't read file");
+    let input =
+        fs::read_to_string(format!("inputs/{:02}.txt", day_number)).expect("Couldn't read file");
 
     let time = Instant::now();
     let mut total_runtime = 0.0;
@@ -41,10 +41,9 @@ fn main() {
 }
 
 fn get_day(day: u8) -> Box<dyn Day> {
-    let matched_day = match day {
-        1 => day01::Day01,
+    match day {
+        1 => Box::new(day01::Day01),
+        2 => Box::new(day02::Day02),
         _ => unimplemented!(),
-    };
-
-    Box::new(matched_day)
+    }
 }
