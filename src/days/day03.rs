@@ -4,19 +4,26 @@ pub struct Day03;
 impl Day for Day03 {
     fn solve_part_one(&self, input: &str) -> String {
         let banks = self.parse_instruction(input);
-        let mut joltages: Vec<u8> = vec![];
+        let mut joltages: Vec<u64> = vec![];
         for bank in banks {
-            let n = bank.len();
-            let (max_ten, idx) = max_with_index(&bank[..n - 1]);
-            let (max_one, _) = max_with_index(&bank[idx + 1..]);
-            joltages.push(max_ten * 10 + max_one);
+            joltages.push(find_nth_max_values(&bank, 2));
         }
-        format!("{}", joltages.iter().map(|&x| x as u32).sum::<u32>())
+        format!("{}", joltages.iter().sum::<u64>())
     }
 
     fn solve_part_two(&self, input: &str) -> String {
         todo!()
+fn find_nth_max_values(bank: &[u8], digit_count: u8) -> u64 {
+    let mut result: u64 = 0;
+    let n = bank.len();
+    let mut start_idx = 0;
+    for i in (0..digit_count).rev() {
+        let (max, updated_start_idx) = max_with_index(&bank[start_idx..n - i as usize]);
+        start_idx += updated_start_idx + 1;
+        result += max as u64 * 10_u64.pow(i as u32);
     }
+
+    result
 }
 
 fn max_with_index(iter: &[u8]) -> (u8, usize) {
