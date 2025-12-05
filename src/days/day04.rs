@@ -35,31 +35,40 @@ impl Day for Day04 {
     }
     fn solve_part_two(&self, input: &str) -> String {
         let mut live_cells = self.parse_input(input);
-        let mut count: usize = 1;
         let mut removed = 0;
 
-        while count != 0 {
-            let mut cell_counts: HashMap<Position, u8> = HashMap::new();
-
-            for live in &live_cells {
-                for (dx, dy) in &DIRS {
-                    *cell_counts.entry((live.0 + dx, live.1 + dy)).or_insert(0) += 1;
-                }
+        let mut cell_counts: HashMap<Position, u8> = HashMap::new();
+        for live in &live_cells {
+            for (dx, dy) in &DIRS {
+                *cell_counts.entry((live.0 + dx, live.1 + dy)).or_insert(0) += 1;
             }
+        }
 
+        loop {
             let to_be_removed: Vec<Position> = live_cells
                 .iter()
                 .filter(|x| *cell_counts.get(x).unwrap_or(&0) < 4)
                 .cloned()
                 .collect();
 
-            count = to_be_removed.len();
+            if to_be_removed.is_empty() {
+                break;
+            }
 
             for cell in &to_be_removed {
                 live_cells.remove(cell);
-            }
+                removed += 1;
 
-            removed += count;
+                for (dx, dy) in &DIRS {
+                    let neighbour = (cell.0 + dx, cell.1 + dy);
+                    if let Some(count) = cell_counts.get_mut(&neighbour) {
+                        *count -= 1;
+                        if *count == 0 {
+                            cell_counts.remove(&neighbour);
+                        }
+                    }
+                }
+            }
         }
         format!("{}", removed)
     }
