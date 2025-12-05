@@ -12,7 +12,15 @@ impl Day for Day03 {
     }
 
     fn solve_part_two(&self, input: &str) -> String {
-        todo!()
+        let banks = self.parse_instruction(input);
+        let mut joltages: Vec<u64> = vec![];
+        for bank in banks {
+            joltages.push(find_nth_max_values(&bank, 12));
+        }
+        format!("{}", joltages.iter().sum::<u64>())
+    }
+}
+
 fn find_nth_max_values(bank: &[u8], digit_count: u8) -> u64 {
     let mut result: u64 = 0;
     let n = bank.len();
@@ -60,17 +68,19 @@ mod test {
 811111111111119
 234234234234278
 818181911112111";
+    const KNOWN_BANKS: [[u8; 15]; 4] = [
+        [9, 8, 7, 6, 5, 4, 3, 2, 1, 1, 1, 1, 1, 1, 1],
+        [8, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 9],
+        [2, 3, 4, 2, 3, 4, 2, 3, 4, 2, 3, 4, 2, 7, 8],
+        [8, 1, 8, 1, 8, 1, 9, 1, 1, 1, 1, 2, 1, 1, 1],
+    ];
 
     #[test]
     fn test_example_input_parsing() {
-        let known_banks = vec![
-            vec![9, 8, 7, 6, 5, 4, 3, 2, 1, 1, 1, 1, 1, 1, 1],
-            vec![8, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 9],
-            vec![2, 3, 4, 2, 3, 4, 2, 3, 4, 2, 3, 4, 2, 7, 8],
-            vec![8, 1, 8, 1, 8, 1, 9, 1, 1, 1, 1, 2, 1, 1, 1],
-        ];
         let parsed_example_input = Day03.parse_instruction(EXAMPLE_INPUT);
-        assert_eq!(known_banks, parsed_example_input);
+        for (expected, parsed) in KNOWN_BANKS.iter().zip(parsed_example_input) {
+            assert_eq!(expected, parsed.as_slice());
+        }
     }
 
     #[test]
@@ -80,6 +90,14 @@ mod test {
 
     #[test]
     fn test_example_input_running_part2() {
-        todo!()
+        assert_eq!(Day03.solve_part_two(EXAMPLE_INPUT), "3121910778619");
+    }
+
+    #[test]
+    fn test_example_input_12_digit_max() {
+        let known_max_values = [987654321111, 811111111119, 434234234278, 888911112111];
+        for (bank, known_max) in KNOWN_BANKS.iter().zip(known_max_values) {
+            assert_eq!(find_nth_max_values(bank, 12), known_max);
+        }
     }
 }
