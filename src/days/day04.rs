@@ -34,7 +34,34 @@ impl Day for Day04 {
         format!("{}", count)
     }
     fn solve_part_two(&self, input: &str) -> String {
-        todo!()
+        let mut live_cells = self.parse_input(input);
+        let mut count: usize = 1;
+        let mut removed = 0;
+
+        while count != 0 {
+            let mut cell_counts: HashMap<Position, u8> = HashMap::new();
+
+            for live in &live_cells {
+                for (dx, dy) in &DIRS {
+                    *cell_counts.entry((live.0 + dx, live.1 + dy)).or_insert(0) += 1;
+                }
+            }
+
+            let to_be_removed: Vec<Position> = live_cells
+                .iter()
+                .filter(|x| *cell_counts.get(x).unwrap_or(&0) < 4)
+                .cloned()
+                .collect();
+
+            count = to_be_removed.len();
+
+            for cell in &to_be_removed {
+                live_cells.remove(cell);
+            }
+
+            removed += count;
+        }
+        format!("{}", removed)
     }
 }
 
@@ -151,6 +178,6 @@ mod test {
 
     #[test]
     fn test_example_input_running_part2() {
-        todo!()
+        assert_eq!(Day04.solve_part_two(EXAMPLE_INPUT), "43");
     }
 }
