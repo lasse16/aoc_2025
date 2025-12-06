@@ -1,4 +1,4 @@
-use std::ops::Range;
+use std::{cmp, ops::Range};
 
 use crate::day::Day;
 pub struct Day05;
@@ -14,7 +14,26 @@ impl Day for Day05 {
     }
 
     fn solve_part_two(&self, input: &str) -> String {
-        todo!()
+        let mut non_overlapping_ranges: Vec<Range<u64>> = vec![];
+        let (mut ranges, _) = Day05.parse_input(input);
+        ranges.sort_unstable_by(|x, y| x.start.cmp(&y.start));
+
+        let mut prev_interval = ranges[0].clone();
+        for current_interval in ranges.iter().skip(1) {
+            if current_interval.start < prev_interval.end {
+                let new_end = cmp::max(current_interval.end, prev_interval.end);
+                prev_interval = prev_interval.start..new_end;
+            } else {
+                non_overlapping_ranges.push(prev_interval);
+                prev_interval = current_interval.clone();
+            }
+        }
+        non_overlapping_ranges.push(prev_interval);
+
+        let count = non_overlapping_ranges
+            .iter()
+            .fold(0, |acc, range| acc + (range.end - range.start));
+        format!("{}", count)
     }
 }
 
@@ -75,6 +94,6 @@ mod test {
 
     #[test]
     fn test_example_input_running_part2() {
-        todo!()
+        assert_eq!(Day05.solve_part_two(EXAMPLE_INPUT), "14");
     }
 }
