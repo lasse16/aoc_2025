@@ -1,0 +1,43 @@
+name: Update AoC Badges
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - src/days
+    
+  workflow_dispatch:                             
+  
+jobs:
+  update:
+    environment: stars_updating
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+          
+      - name: Insert badge into README
+        uses: joblo2213/aoc-badges-action@v3
+        with:
+          userid: ${{ vars.USER_ID }}
+          session: ${{ secrets.SESSION_TOKEN }}
+          year: 2025
+
+      - name: Commit changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FILE_TO_COMMIT: README.md
+          DESTINATION_BRANCH: main
+        run: |
+          export MESSAGE="bot: update star count"
+          export SHA=$(git rev-parse "$DESTINATION_BRANCH:$FILE_TO_COMMIT" 2>/dev/null || echo "")
+          base64 -w 0 "$FILE_TO_COMMIT" > encoded_content.txt
+          gh api repos/${{ github.repository }}/contents/"$FILE_TO_COMMIT" \
+            --method PUT \
+            --field "message=$MESSAGE" \
+            --field "content=@encoded_content.txt" \
+            --field "encoding=base64" \
+            --field "branch=$DESTINATION_BRANCH" \
+            $( [[ -n "$SHA" ]] && echo "--field sha=$SHA" )
