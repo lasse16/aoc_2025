@@ -47,6 +47,7 @@ fn get_day(day: u8) -> Box<dyn Day> {
         3 => Box::new(day03::Day03),
         4 => Box::new(day04::Day04),
         5 => Box::new(day05::Day05),
+        6 => Box::new(day06::Day06),
         _ => unimplemented!(),
     }
 }
