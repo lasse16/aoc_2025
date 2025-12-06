@@ -17,11 +17,72 @@ impl Day for Day06 {
     }
 
     fn solve_part_two(&self, input: &str) -> String {
-        todo!()
+        let problems = Day06.parse_input_part_two(input);
+        let sum: u64 = problems.iter().sum();
+        format!("{}", sum)
     }
 }
 
 impl Day06 {
+    fn parse_input_part_two(&self, input: &str) -> Vec<u64> {
+        let mut result = vec![];
+
+        let mut lines = input.lines().rev();
+        let mut operators = vec![];
+
+        //IMPORTANT: All operators are always left-aligned in their columns
+        let operator_line = lines.next().unwrap().chars();
+        let mut line_length = 0;
+        for (idx, char) in operator_line.enumerate() {
+            if !char.is_whitespace() {
+                match char {
+                    '+' => operators.push((idx, Op::Add)),
+                    '*' => operators.push((idx, Op::Mul)),
+                    _ => panic!("Unexpected operation character"),
+                }
+            }
+            line_length += 1;
+        }
+        line_length += 1;
+
+        let mut numbers: Vec<u64> = vec![0; line_length];
+
+        for line in lines.rev() {
+            for (idx, char) in line.chars().enumerate() {
+                let active_number = numbers.get_mut(idx).unwrap();
+                if char.is_ascii_digit() {
+                    *active_number = *active_number * 10 + char.to_digit(10).unwrap() as u64
+                }
+            }
+        }
+
+        for (i, (idx, operator)) in operators.iter().enumerate() {
+            let next_operator_index = match operators.get(i + 1) {
+                Some(next_operator) => next_operator.0,
+                None => line_length,
+            };
+            match operator {
+                Op::Add => {
+                    result.push(numbers[*idx..next_operator_index].iter().sum());
+                }
+                Op::Mul => {
+                    let numbers = &numbers[*idx..next_operator_index];
+                    let mut acc = 1;
+                    for number in numbers {
+                        // All fields without numbers are zero in my parsing
+                        // There are no "true" zeros in the input
+                        if *number != 0 {
+                            acc *= number
+                        }
+                    }
+
+                    result.push(acc);
+                }
+            }
+        }
+        result
+    }
+
     fn parse_input(&self, input: &str) -> Vec<Problem> {
         let mut result = vec![];
 
@@ -71,9 +132,9 @@ impl Day06 {
 mod test {
     use super::*;
     const EXAMPLE_INPUT: &str = "123 328  51 64 
-         45 64  387 23 
-           6 98  215 314
-           *   +   *   +  ";
+ 45 64  387 23 
+  6 98  215 314
+*   +   *   +  ";
 
     #[test]
     fn test_example_input_parsing() {
@@ -96,6 +157,6 @@ mod test {
 
     #[test]
     fn test_example_input_running_part2() {
-        todo!()
+        assert_eq!(Day06.solve_part_two(EXAMPLE_INPUT), "3263827");
     }
 }
