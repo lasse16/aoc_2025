@@ -24,6 +24,47 @@ impl Day for Day06 {
 }
 
 impl Day06 {
+    fn parse_input(&self, input: &str) -> Vec<Problem> {
+        let mut result = vec![];
+
+        let mut lines = input.lines().rev();
+
+        let operator_line = lines.next().unwrap().trim();
+        for char in operator_line.chars() {
+            if !char.is_whitespace() {
+                match char {
+                    '+' => result.push((0, Op::Add)),
+                    '*' => result.push((1, Op::Mul)),
+                    _ => panic!("Unexpected operation character"),
+                }
+            }
+        }
+
+        for line in lines {
+            let mut active_number: u64 = 0;
+            let mut current_column = 0;
+            for char in line.trim().chars() {
+                if char.is_ascii_digit() {
+                    active_number = active_number * 10 + char.to_digit(10).unwrap() as u64
+                } else if active_number != 0 {
+                    let (acc, operation) = result.get_mut(current_column).unwrap();
+                    match operation {
+                        Op::Add => *acc += active_number,
+                        Op::Mul => *acc *= active_number,
+                    }
+                    active_number = 0;
+                    current_column += 1;
+                }
+            }
+            let (acc, operation) = result.get_mut(current_column).unwrap();
+            match operation {
+                Op::Add => *acc += active_number,
+                Op::Mul => *acc *= active_number,
+            }
+        }
+        result
+    }
+
     fn parse_input_part_two(&self, input: &str) -> Vec<u64> {
         let mut result = vec![];
 
@@ -78,47 +119,6 @@ impl Day06 {
 
                     result.push(acc);
                 }
-            }
-        }
-        result
-    }
-
-    fn parse_input(&self, input: &str) -> Vec<Problem> {
-        let mut result = vec![];
-
-        let mut lines = input.lines().rev();
-
-        let operator_line = lines.next().unwrap().trim();
-        for char in operator_line.chars() {
-            if !char.is_whitespace() {
-                match char {
-                    '+' => result.push((0, Op::Add)),
-                    '*' => result.push((1, Op::Mul)),
-                    _ => panic!("Unexpected operation character"),
-                }
-            }
-        }
-
-        for line in lines {
-            let mut active_number: u64 = 0;
-            let mut current_column = 0;
-            for char in line.trim().chars() {
-                if char.is_ascii_digit() {
-                    active_number = active_number * 10 + char.to_digit(10).unwrap() as u64
-                } else if active_number != 0 {
-                    let (acc, operation) = result.get_mut(current_column).unwrap();
-                    match operation {
-                        Op::Add => *acc += active_number,
-                        Op::Mul => *acc *= active_number,
-                    }
-                    active_number = 0;
-                    current_column += 1;
-                }
-            }
-            let (acc, operation) = result.get_mut(current_column).unwrap();
-            match operation {
-                Op::Add => *acc += active_number,
-                Op::Mul => *acc *= active_number,
             }
         }
         result
