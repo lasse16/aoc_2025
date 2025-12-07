@@ -102,11 +102,10 @@ impl Day06 {
         for line in lines {
             let mut active_number: u64 = 0;
             let mut current_column = 0;
-            let mut prev_char = ' ';
             for char in line.trim().chars() {
                 if char.is_ascii_digit() {
                     active_number = active_number * 10 + char.to_digit(10).unwrap() as u64
-                } else if prev_char != ' ' {
+                } else if active_number != 0 {
                     let (acc, operation) = result.get_mut(current_column).unwrap();
                     match operation {
                         Op::Add => *acc += active_number,
@@ -115,8 +114,6 @@ impl Day06 {
                     active_number = 0;
                     current_column += 1;
                 }
-
-                prev_char = char;
             }
             let (acc, operation) = result.get_mut(current_column).unwrap();
             match operation {
