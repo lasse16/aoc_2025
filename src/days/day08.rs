@@ -68,11 +68,41 @@ impl Day for Day08 {
         }
         let mut circuits = vertices.sets();
         circuits.sort_unstable_by_key(|set| set.len());
-        format!("{}",circuits.iter().rev().take(3).map(|x| x.len()).product::<usize>())
+        format!(
+            "{}",
+            circuits
+                .iter()
+                .rev()
+                .take(3)
+                .map(|x| x.len())
+                .product::<usize>()
+        )
     }
 
     fn solve_part_two(&self, input: &str) -> String {
-        todo!()
+        let points = self.parse_input(input);
+        let mut vertices = DisjointSet::with_len(points.len());
+        let mut pairs_with_distance = self.generate_pairs_with_distance(&points);
+        pairs_with_distance.sort_unstable_by_key(|x| x.0);
+        let mut circuits = vertices.sets();
+        let mut counter = 0;
+        let mut latest_edge = pairs_with_distance[0].1;
+
+        while circuits.len() != 1 {
+            let active_edge = pairs_with_distance[counter].1;
+            let first_index = points.iter().position(|p| p == active_edge.0).unwrap();
+            let second_index = points.iter().position(|p| p == active_edge.1).unwrap();
+
+            if !vertices.is_joined(first_index, second_index) {
+                vertices.join(first_index, second_index);
+            }
+
+            counter += 1;
+            circuits = vertices.sets();
+            latest_edge = active_edge;
+        }
+
+        format!("{}", latest_edge.0.x * latest_edge.1.x)
     }
 }
 
@@ -174,6 +204,6 @@ mod test {
 
     #[test]
     fn test_example_input_running_part2() {
-        todo!()
+        assert_eq!("25272", Day08.solve_part_two(EXAMPLE_INPUT));
     }
 }
