@@ -12,7 +12,7 @@ impl Day for Day00 {
 }
 
 impl Day00 {
-    fn parse_instruction(&self, instruction: &str) -> todo!() {
+    fn parse_input(&self, input: &str) -> todo!() {
         todo!()
     }
 }
@@ -20,6 +20,7 @@ impl Day00 {
 #[cfg(test)]
 mod test {
     use super::*;
+    const EXAMPLE_INPUT: &str = "";
 
     #[test]
     fn test_example_input_parsing() {
@@ -28,11 +29,11 @@ mod test {
 
     #[test]
     fn test_example_input_running_part1() {
-        todo!()
+        assert_eq!("", Day00.solve_part_one(EXAMPLE_INPUT));
     }
 
     #[test]
     fn test_example_input_running_part2() {
-        todo!()
+        assert_eq!("", Day00.solve_part_two(EXAMPLE_INPUT));
     }
 }
