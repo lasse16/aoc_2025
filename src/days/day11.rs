@@ -5,7 +5,7 @@ pub struct Day11;
 
 impl Day for Day11 {
     fn solve_part_one(&self, input: &str) -> String {
-        let mut cache: HashMap<&str, u16> = HashMap::new();
+        let mut cache: HashMap<&str, usize> = HashMap::new();
         let start = "you";
         let end = "out";
 
@@ -15,8 +15,27 @@ impl Day for Day11 {
         format!("{}", path_count)
     }
 
-    fn solve_part_two(&self, _input: &str) -> String {
-        todo!()
+    fn solve_part_two(&self, input: &str) -> String {
+        // Caching is specific to the end node
+        let mut cache_out: HashMap<&str, usize> = HashMap::new();
+        let mut cache_fft: HashMap<&str, usize> = HashMap::new();
+        let mut cache_dac: HashMap<&str, usize> = HashMap::new();
+
+        let start = "svr";
+        let end = "out";
+
+        let mut edges = self.parse_input(input);
+        // "out" never appears on the left side and as such is never generated in the input parsing
+        edges.insert("out", vec![]);
+
+        let paths_dac_first = dfs(&edges, start, "dac", &mut cache_dac)
+            * dfs(&edges, "dac", "fft", &mut cache_fft)
+            * dfs(&edges, "fft", end, &mut cache_out);
+        let paths_fft_first = dfs(&edges, start, "fft", &mut cache_fft)
+            * dfs(&edges, "fft", "dac", &mut cache_dac)
+            * dfs(&edges, "dac", end, &mut cache_out);
+
+        format!("{}", paths_dac_first + paths_fft_first)
     }
 }
 
@@ -24,8 +43,8 @@ fn dfs<'a>(
     edges: &HashMap<&'a str, Vec<&'a str>>,
     start: &'a str,
     end: &str,
-    cache: &mut HashMap<&'a str, u16>,
-) -> u16 {
+    cache: &mut HashMap<&'a str, usize>,
+) -> usize {
     if let Some(cached_value) = cache.get(start) {
         return *cached_value;
     }
@@ -68,6 +87,19 @@ fff: out
 ggg: out
 hhh: ccc fff iii
 iii: out";
+    const EXAMPLE_INPUT_PART2: &str = "svr: aaa bbb
+aaa: fft
+fft: ccc
+bbb: tty
+tty: ccc
+ccc: ddd eee
+ddd: hub
+hub: fff
+eee: dac
+dac: fff
+fff: ggg hhh
+ggg: out
+hhh: out";
 
     #[test]
     fn test_example_input_parsing() {
@@ -93,6 +125,6 @@ iii: out";
 
     #[test]
     fn test_example_input_running_part2() {
-        assert_eq!("", Day11.solve_part_two(EXAMPLE_INPUT));
+        assert_eq!("2", Day11.solve_part_two(EXAMPLE_INPUT_PART2));
     }
 }
