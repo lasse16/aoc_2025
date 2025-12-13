@@ -1,4 +1,4 @@
-![](https://img.shields.io/badge/stars%20⭐-12-yellow)
+![](https://img.shields.io/badge/stars%20⭐-18-yellow)
 
 # Advent of Code 2025
 
