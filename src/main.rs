@@ -37,7 +37,7 @@ fn main() {
     println!("  · Elapsed: {:.4} ms", elapsed_ms);
 
     total_runtime += elapsed_ms;
-    println!("Total runtime: {}", total_runtime);
+    println!("Total runtime: {} ms", total_runtime);
 }
 
 fn get_day(day: u8) -> Box<dyn Day> {
